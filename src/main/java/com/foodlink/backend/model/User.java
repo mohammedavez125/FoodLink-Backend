@@ -1,5 +1,6 @@
 package com.foodlink.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -10,15 +11,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Document(collection = "user")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class User implements UserDetails {
     @Id
     private ObjectId id;
@@ -32,15 +32,28 @@ public class User implements UserDetails {
 
     @Indexed(unique = true)
     private String email;
+    @JsonIgnore
     private String password;
     private String phone;
     private String address;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(
-                new SimpleGrantedAuthority(role.getName())
-        );
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+
+        Set<SimpleGrantedAuthority> permissionAuthorities = role.getPermissions()
+                .stream()
+                .map(permission -> new SimpleGrantedAuthority(permission.name()))
+                .collect(Collectors.toSet());
+
+        // Role, Permission authority
+        authorities.add(new SimpleGrantedAuthority("ROLE_"+role.getName()));
+        authorities.addAll(permissionAuthorities);
+
+        System.out.println("getAuthorities called for: " + username);
+        System.out.println(authorities);
+
+        return authorities;
     }
 
     @Override

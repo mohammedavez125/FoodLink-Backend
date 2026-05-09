@@ -21,9 +21,9 @@ public class AdminUserInitializer {
 
         return args -> {
 
-            Role adminRole = roleRepository.findByName("ROLE_ADMIN")
+            Role adminRole = roleRepository.findByName("ADMIN")
                     .orElseThrow(() -> new RuntimeException("ADMIN role not found"));
-            Role userRole = roleRepository.findByName("ROLE_USER")
+            Role userRole = roleRepository.findByName("USER")
                     .orElseThrow(() -> new RuntimeException("USER role not found"));
 
             if (userRepository.findByUsername("admin").isEmpty()) {

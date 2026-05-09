@@ -5,11 +5,8 @@ import com.foodlink.backend.model.User;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,4 +26,13 @@ public class UserController {
     public User createUser(@RequestBody User data) {
         return repo.save(data);
     }
+
+    @GetMapping("/get-user/{username}")
+    public User getUser(@PathVariable String username){
+
+        return repo.findByUsername(username)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+    }
+
 }

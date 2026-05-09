@@ -1,6 +1,7 @@
 package com.foodlink.backend.config;
 
 import com.foodlink.backend.filter.JwtAuthFilter;
+import com.foodlink.backend.model.Permission;
 import com.foodlink.backend.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,8 +28,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth->auth.requestMatchers("/authenticate")
-                        .permitAll()
+                .authorizeHttpRequests(auth->auth
+                        .requestMatchers("/authenticate").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .requestMatchers("/get-user/**").hasRole("ADMIN")
+                        .requestMatchers("/get-user/**").hasAuthority(Permission.DONATION_READ.name())
                         .anyRequest()
                         .authenticated());
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
