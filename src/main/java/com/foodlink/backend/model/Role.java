@@ -14,5 +14,4 @@ public class Role {
     private ObjectId id;
     private String name;
     private final Set<Permission> permissions;
-
 }
