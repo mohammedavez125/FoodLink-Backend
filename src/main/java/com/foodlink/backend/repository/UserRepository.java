@@ -1,8 +1,6 @@
 package com.foodlink.backend.repository;
 
 import com.foodlink.backend.model.User;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

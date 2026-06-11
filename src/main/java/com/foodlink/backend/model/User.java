@@ -1,6 +1,7 @@
 package com.foodlink.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.foodlink.backend.model.role.Role;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -12,7 +13,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Document(collection = "user")
 @Data
@@ -35,23 +35,36 @@ public class User implements UserDetails {
     @JsonIgnore
     private String password;
     private String phone;
-    private String address;
+    private Address address;
+
+    private AuthProvider provider;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
 
-        Set<SimpleGrantedAuthority> permissionAuthorities = role.getPermissions()
-                .stream()
-                .map(permission -> new SimpleGrantedAuthority(permission.name()))
-                .collect(Collectors.toSet());
+        if (role == null) {
+            return authorities;
+        }
 
-        // Role, Permission authority
-        authorities.add(new SimpleGrantedAuthority("ROLE_"+role.getName()));
-        authorities.addAll(permissionAuthorities);
+        if (role.getRoleName() != null) {
+            authorities.add(
+                    new SimpleGrantedAuthority(
+                            "ROLE_" + role.getRoleName()
+                    )
+            );
+        }
 
-        System.out.println("getAuthorities called for: " + username);
-        System.out.println(authorities);
+        if (role.getPermissions() != null) {
+            role.getPermissions()
+                    .forEach(
+                            permission -> authorities.add(
+                                    new SimpleGrantedAuthority(
+                                            permission.name()
+                                    )
+                            )
+                    );
+        }
 
         return authorities;
     }
